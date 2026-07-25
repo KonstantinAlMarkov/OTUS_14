@@ -1,0 +1,7 @@
+:company_name: Сеть межгалактических закусочных «Замысловатость»
+:project_name: Межпланетная PLM-Платформа
+:current_year: 2303 год (Kepler 438b)
+:pricing_service_id: commercial-pricing-service
+:recipe_service_id: recipe-management-service
+:industrial_service_id: industrial-automation-service
+:framework_name: NIST CSF
