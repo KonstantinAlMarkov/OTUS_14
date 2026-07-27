@@ -1,0 +1,161 @@
+@startuml C4_Elements_NFT
+!define RELATIVE_INCLUDE 1
+!include D:\C4-PlantUML\C4_Context.puml
+!include D:\C4-PlantUML\C4_Container.puml
+LAYOUT_TOP_DOWN()
+LAYOUT_WITH_LEGEND()
+
+title Диаграмма контейнеров (C4: Level 2) — Обновленный межпланетный ландшафт с учетом требований безопасности и производительности (NIST CSF)
+
+' Гарантированная жесткая стилизация прямоугольников через skinparam (чтобы избежать человечков)
+skinparam rectangle<<changed_component>> {
+    BackgroundColor #E67E22
+    BorderColor #D35400
+    FontColor #FFFFFF
+}
+skinparam rectangle<<new_component>> {
+    BackgroundColor #2ECC71
+    BorderColor #27AE60
+    FontColor #FFFFFF
+}
+
+' ВНЕШНИЕ ПОЛЬЗОВАТЕЛИ
+Person(customer, "Покупатель на планете", "Конечный клиент в ресторане")
+
+Boundary(earth_roles, "Сотрудники разработки (Земля)") {
+ Person(marketing_p, "Маркетолог")
+ Person(chef, "Шеф-повар")
+ Person(technologist, "Технолог")
+ Person(cx_leader, "Руководитель CX")
+ Person(prod_dir, "Директор по производству")
+ Person(log_dir, "Директор по логистике")
+ Person(fin_dir, "Финансовый директор")
+ Person(buyer, "Специалист по закупкам")
+ Person(hr_mgr, "HR-менеджер")
+ Person(sa, "Системный аналитик")
+}
+
+' ==============================================================================
+' ГРАНИЦА НАШЕЙ СИСТЕМЫ (Контур разработки и дистрибуции PLM)
+' ==============================================================================
+System_Boundary(plm_system, "Межпланетная PLM-Платформа (Наша система)") {
+ 
+ ' Контур Центрального офиса (Земля)
+ Boundary(central_backend_zone, "Центральный бэк-офис (Земля)") {
+   Container(plm_ui, "PLM Web Portal", "React SPA", "Единый интерфейс управления продуктом. [ТР-COMP-01: Chrome, Firefox, Safari]")
+   
+   ' [CHANGED] Оранжевый прямоугольный контейнер (тег передан 6-м аргументом)
+   Container(api_gateway, "[CHANGED] API Gateway", "Spring Cloud Gateway", "Единая точка входа. Нагрузка: до 15 000 RPS [ТР-PERF-01]. Расширен встроенным [NIST: PROTECT] RBAC Engine [ТР-SEC-01]", "", "changed_component")
+ 
+   Container(recipe_core, "Recipe Management Service (PLM-R)", "Java / Spring Boot", "Внутренний BPM-оркестратор (Camunda BPM)")
+   
+   ' [NEW] Зеленый прямоугольный контейнер
+   Container(json_val_r, "[NEW] JSON Schema Validator R", "Java Library", "[NIST: PROTECT] Строгая валидация входящих схем перед записью в БД", "", "new_component")
+   ContainerDb(recipe_db, "Recipe DB", "PostgreSQL", "Хранилище техкарт и расовых UI-паков (JSONB)")
+ 
+   Container(pricing_core, "Commercial Pricing Service (PLM-P)", "Java / Spring Boot", "Доменная логика цен")
+   
+   ' [NEW] Зеленый прямоугольный контейнер
+   Container(fle_interceptor, "[NEW] FLE Interceptor", "Crypto SDK", "[NIST: PROTECT] Полейное шифрование AES-GCM-256 (Следствие ТК-01 из ATAM) [ТР-SEC-02]", "", "new_component")
+   
+   ' [NEW] Зеленый прямоугольный контейнер
+   Container(json_val_p, "[NEW] JSON Schema Validator P", "Java Library", "[NIST: PROTECT] Валидация коммерческих схем перед записью", "", "new_component")
+   ContainerDb(pricing_db, "Commercial Pricing DB", "PostgreSQL", "Хранилище тарифных сеток")
+ 
+   Container(industrial_core, "Industrial Automation Service (PLM-I)", "Java / Spring Boot", "Генерация прошивок")
+   
+   ' [NEW] Зеленый прямоугольный контейнер
+   Container(crypto_sign, "[NEW] Crypto-Signing Engine", "AWS KMS SDK", "[NIST: DETECT] Асимметричная подпись SHA-256 хэшей прошивок роботов [ТР-SEC-03]", "", "new_component")
+   ContainerDb(industrial_db, "Industrial Robotics DB", "PostgreSQL", "Хранилище кодов сборки для IoT")
+ 
+   Container(earth_broker, "Earth Kafka Broker", "Apache Kafka", "Центральная шина Земли. Трафик: до 2.5 Гбит/с, Latency < 45мс [ТР-PERF-02]")
+   
+   ' [NEW] Зеленый прямоугольный контейнер
+   Container(dlq_router, "[NEW] DLQ Router", "Kafka Streams", "[NIST: RESPOND] Автокарантин скомпрометированных пакетов [ТР-SEC-04]", "", "new_component")
+ }
+ 
+ Container(mirror_maker, "Kafka MirrorMaker 2", "Kafka Tools", "Зеркальная репликация топиков между кластерами через космос")
+ 
+ Boundary(planetary_internal_zone, "Локальные узлы PLM на Планете") {
+   Container(planetary_broker, "Planetary Kafka Broker", "Apache Kafka", "Региональный брокер. Хаб для всех систем планеты")
+   Container(kafka_streams, "Metrics Aggregator (Kafka Streams)", "Java / Kafka Streams", "Стримовая часовая агрегация чеков для Земли")
+ }
+ 
+ Boundary(restaurant_internal_zone, "Узлы PLM в Ресторане") {
+   ' [CHANGED] Оранжевый прямоугольный контейнер
+   Container(local_service, "[CHANGED] Local Sync Service", "Rust / Go Native", "Платформонезависимый модуль [ТР-COMP-03: ARM64 / x86_64 RTOS]", "", "changed_component")
+   
+   ' [NEW] Зеленый прямоугольный контейнер
+   Container(vector_clocks, "[NEW] Vector Clocks Resolver", "Engine", "[NIST: RECOVER] Разрешение конфликтов бурь (Следствие ТЧ-01 из ATAM) [<150мс на 10к соб.] [ТР-RC-01]", "", "new_component")
+   Container(local_broker, "Local Kafka Broker", "Apache Kafka (Lightweight)", "Локальная изолированная шина закусочной")
+ }
+}
+
+' ==============================================================================
+' ГЕОГРАФИЧЕСКИЕ ЗОНЫ ДЛЯ ВНЕШНИХ СИСТЕМ
+' ==============================================================================
+Boundary(earth_external_zone, "ГЛОБАЛЬНЫЕ СИСТЕМЫ УЧЕТА (Внешнее окружение Земли)") {
+ System_Ext(global_bi_dwh, "Платформа BI / DWH (ClickHouse)", "Получает мастер-данные продукта для настройки аналитических кубов и отчетов по маржинальности")
+ System_Ext(marketing_cx_sys, "Система Маркетинга и CX", "Импортирует контентные паки и условия промо")
+}
+
+Boundary(planetary_office_external, "РЕГИОНАЛЬНЫЙ БЭК-ОФИС ПЛАНЕТЫ (Внешнее окружение)") {
+ System_Ext(reg_oms, "Система OMS", "Получает SKU нового продукта для регистрации, валидации и маршрутизации заказов")
+ System_Ext(reg_wms, "Система WMS", "Получает спецификации, лимиты остатков и правила соседства")
+ System_Ext(reg_lms, "Система LMS", "Принимает графики поставок и требования к крио-камерам")
+ System_Ext(reg_hrms, "Система HRMS", "Связывает графики работы с обучением по трюфелю")
+}
+
+Boundary(local_restaurant_external, "ЛОКАЛЬНЫЙ РЕСТОРАН ТОЧКИ (Внешнее окружение)") {
+ System_Ext(sales_channels, "Каналы продаж", "Сайты, приложения, киоски. Отображают покупателям актуальный состав и цены")
+ System_Ext(kds_robots, "Система KDS и Роботы", "Импортирует техкарты для поваров, новые прошивки и траектории")
+}
+
+' --- ПОТОКИ ДАННЫХ И СВЯЗИ ---
+Rel(earth_roles, plm_ui, "Работа в контуре NPD", "HTTPS")
+Rel(plm_ui, api_gateway, "Запросы к бэкенду", "HTTPS / REST")
+Rel(api_gateway, recipe_core, "REST / Проверка прав RBAC Engine")
+Rel(api_gateway, pricing_core, "REST / Проверка прав RBAC Engine")
+Rel(api_gateway, industrial_core, "REST / Проверка прав RBAC Engine")
+
+Rel(recipe_core, json_val_r, "Передает JSONB")
+Rel(json_val_r, recipe_db, "Записывает валидный JSONB")
+Rel(recipe_core, earth_broker, "Event: RecipeCertified (Состав + Vector Clock)")
+
+Rel(pricing_core, fle_interceptor, "Передает сырые цены")
+Rel(fle_interceptor, json_val_p, "Шифрует поле цены (AES-GCM-256)")
+Rel(json_val_p, pricing_db, "Записывает в БД")
+Rel(fle_interceptor, earth_broker, "Публикует (price-approved с FLE-полями)")
+
+Rel(industrial_core, crypto_sign, "Генерирует бинарный код")
+Rel(crypto_sign, industrial_db, "Сохраняет артефакт сборки")
+Rel(crypto_sign, earth_broker, "Публикует (robotics-compiled + SHA-256 Sign)")
+
+Rel_Left(earth_broker, dlq_router, "Перенаправляет аномалии пакетов")
+Rel(earth_broker, mirror_maker, "Считывание справочников для отправки вниз")
+Rel(mirror_maker, planetary_broker, "Зеркалирование топиков новинок на планеты")
+
+Rel(planetary_broker, reg_oms, "Слушает: PriceApproved")
+Rel(planetary_broker, reg_wms, "Слушает: RecipeCertified")
+Rel(planetary_broker, reg_lms, "Слушает: RecipeCertified")
+Rel(planetary_broker, reg_hrms, "Слушает: RecipeCertified")
+
+Rel(planetary_broker, local_service, "Передача пачек данных через космос")
+Rel(local_service, vector_clocks, "Передает пачки после бури")
+Rel(vector_clocks, local_broker, "Запись обновлений через Vector Clocks Resolver (<150мс)")
+
+Rel_D(local_broker, sales_channels, "Слушает: Состав и цены")
+Rel_D(local_broker, kds_robots, "Слушает: Техкарты и подписанные прошивки")
+
+Rel(customer, sales_channels, "Оплачивает 'Марсианский трюфель'")
+Rel_L(sales_channels, kds_robots, "Локальный мгновенный заказ: Order_Created")
+
+Rel_U(sales_channels, planetary_broker, "Транзакция продажи: Order_Paid")
+Rel_U(planetary_broker, reg_oms, "Слушает Order_Paid")
+Rel_U(planetary_broker, reg_wms, "Слушает Order_Paid")
+
+Rel(planetary_broker, kafka_streams, "Чтение потока сырых чеков Order_Paid")
+Rel(kafka_streams, planetary_broker, "Запись часовых батчей")
+Rel(planetary_broker, mirror_maker, "Считывание батчей")
+Rel(mirror_maker, earth_broker, "Репликация батчей на Землю")
+@enduml
