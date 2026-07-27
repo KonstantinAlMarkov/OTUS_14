@@ -1,0 +1,78 @@
+include::./docs/global/_attributes.adoc[]
+
+= ТЕХНИЧЕСКИЙ ПАСПОРТ ПРОЕКТА: АВТОМАТИЗАЦИЯ ВЫВОДА НОВЫХ ПРОДУКТОВ НА БАЗЕ PLM-СИСТЕМЫ
+:doctype: book
+:toc: left
+:toclevels: 3
+:toc-title: Оглавление технического паспорта
+:sectnums:
+:sectnumlevels: 2
+:chapter-signifier: Глава
+:icons: font
+:source-highlighter: coderay
+
+[preface]
+== Аннотация
+Настоящий документ представляет собой консолидированный технический паспорт и архитектурное описание проекта внедрения Межпланетной PLM-платформы для сети закусочных {company_name}. Документ разработан по методологии Docs-as-Code на языке разметки AsciiDoc и содержит исчерпывающие сведения о целях, графике, команде, рисках, НФТ и сквозной архитектуре безопасности системы.
+
+<<<<
+
+// --- ГЛОБАЛЬНЫЙ КОНТУР ПРОЕКТА ---
+
+include::./docs/global/description.adoc[leveloffset=+1]
+
+<<<<
+
+include::./docs/global/purpose.adoc[leveloffset=+1]
+
+<<<<
+
+include::./docs/global/schedule.adoc[leveloffset=+1]
+
+<<<<
+
+include::./docs/global/team.adoc[leveloffset=+1]
+
+<<<<
+
+include::./docs/global/risks.adoc[leveloffset=+1]
+
+<<<<
+
+include::./docs/global/plm-overview.adoc[leveloffset=+1]
+
+<<<<
+
+include::./docs/global/architecture.adoc[leveloffset=+1]
+
+<<<<
+
+include::./docs/global/conclusion.adoc[leveloffset=+1]
+
+<<<<
+
+// --- КОНТУР ИЗМЕНЕНИЙ (ИТ-ЭПИКИ) ---
+
+= ПРИЛОЖЕНИЕ А: ТЕХНИЧЕСКИЕ СПЕЦИФИКАЦИИ ИТ-ЭПИКОВ
+
+include::./docs/epics/2-2-mobile-app/index.adoc[leveloffset=+1]
+
+<<<<
+
+include::./docs/epics/2-2-mobile-app/nfr.adoc[leveloffset=+1]
+
+<<<<
+
+include::./docs/epics/2-2-mobile-app/qa-criteria.adoc[leveloffset=+1]
+
+<<<<
+
+// --- ТЕХНИЧЕСКИЙ КОНТУР (ТЗ МИКРОСЕРВИСОВ) ---
+
+= ПРИЛОЖЕНИЕ Б: ТЕХНИЧЕСКИЕ ЗАДАНИЯ НА МИКРОСЕРВИСЫ БЭКЕНДА
+
+include::./docs/services/recipe-core/index.adoc[leveloffset=+1]
+
+<<<<
+
+include::./docs/services/pricing-core/index.adoc[leveloffset=+1]
